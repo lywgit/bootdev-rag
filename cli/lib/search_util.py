@@ -3,6 +3,7 @@ import json
 MOVIE_DATA_PATH = 'data/movies.json'
 STOPWORD_DATA_PATH = 'data/stopwords.txt'
 CACHE_DIR = 'cache'
+DEFAULT_SEARCH_LIMIT = 5
 BM25_K1 = 1.5
 BM25_B = 0.75
 
