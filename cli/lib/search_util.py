@@ -10,6 +10,8 @@ DOCUMENT_PREVIEW_LENGTH = 100
 SCORE_PRECISION = 10
 BM25_K1 = 1.5
 BM25_B = 0.75
+DEFAULT_HYBRID_ALPHA = 0.5 
+DEFAULT_HYBRID_RRF_K = 60
 
 def load_movie_list() -> list:
     with open(MOVIE_DATA_PATH, 'r') as f:

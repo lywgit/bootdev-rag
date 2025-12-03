@@ -78,7 +78,7 @@ def main() -> None:
             print(f"BM25 IDF score of '{args.term}': {bm25idf:.2f}")
         case "bm25search":
             result = bm25_search_command(args.query, limit=args.limit, k1=BM25_K1, b=BM25_B)
-            for doc, score in result:
+            for doc_id, doc, score in result:
                 print(f"({doc['id']}) {doc['title']} - Score: {score:.2f}")
         case _:
             parser.print_help()

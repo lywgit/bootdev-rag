@@ -132,7 +132,7 @@ class ChunkedSemanticSearch(SemanticSearch):
         # create if not already exist
         return self.build_chunk_embeddings(documents)
     
-    def search_chunks(self, query:str, limit:int = 10):
+    def search_chunks(self, query:str, limit:int = 10) -> list[dict]:
         if self.chunk_embeddings is None or self.chunk_metadata is None or self.documents is None:
             raise ValueError("Use load_or_create_chunk_embeddings to generate embedding first")
         
