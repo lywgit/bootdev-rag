@@ -9,7 +9,9 @@ from .search_util import (
     DOCUMENT_PREVIEW_LENGTH,
     DEFAULT_HYBRID_RRF_K
 )
-
+from .query_enhancement import (
+    enhance_query
+)
 
 class HybridSearch:
     def __init__(self, documents):
@@ -118,7 +120,8 @@ def weighted_search_command(query:str, alpha:float = DEFAULT_HYBRID_ALPHA, limit
         print(f"  BM25: {bm25:.4f}, Semantic: {sem:.4f}")
         print(f"  {doc["description"][:DOCUMENT_PREVIEW_LENGTH]}")
 
-def rrf_search_command(query:str, k:float=DEFAULT_HYBRID_RRF_K, limit:int = DEFAULT_SEARCH_LIMIT):
+def rrf_search_command(query:str, k:float=DEFAULT_HYBRID_RRF_K, limit:int = DEFAULT_SEARCH_LIMIT, enhance_method:str|None = None):
+    query = enhance_query(query, enhance_method)
     docs = load_movie_list()
     hs = HybridSearch(docs)
     res = hs.rrf_search(query, k, limit)
