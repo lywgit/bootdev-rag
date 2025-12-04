@@ -1,6 +1,7 @@
 import json
 
 MOVIE_DATA_PATH = 'data/movies.json'
+MOVIE_GOLDEN_DATASET_PATH = 'data/golden_dataset.json'
 STOPWORD_DATA_PATH = 'data/stopwords.txt'
 CACHE_DIR = 'cache'
 DEFAULT_SEARCH_LIMIT = 5
@@ -23,3 +24,10 @@ def load_stopwords() -> list:
     with open(STOPWORD_DATA_PATH, 'r') as f:
         stop_words = f.read().splitlines()
     return stop_words
+
+
+
+def load_golden_dataset(path:str=MOVIE_GOLDEN_DATASET_PATH) -> list:
+    with open(path, 'r') as f:
+        data = json.load(f)
+    return data["test_cases"]
