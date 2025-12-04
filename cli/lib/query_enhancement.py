@@ -1,15 +1,7 @@
-import os
-from google import genai
-from dotenv import load_dotenv
-from .search_util import DEFAULT_GEMINI_MODEL
-
-def get_gemini_client() -> genai.Client:
-    load_dotenv()
-    api_key = os.environ.get("GEMINI_API_KEY")
-    if api_key is None:
-        raise OSError("Environment variable 'GEMINI_API_KEY' is not set.")
-    client = genai.Client(api_key=api_key)
-    return client
+from .gemini_util import (
+    DEFAULT_GEMINI_MODEL,
+    get_gemini_client
+)
 
 def llm_spell_check(query:str, model:str=DEFAULT_GEMINI_MODEL) -> str:
     client = get_gemini_client()
@@ -83,3 +75,4 @@ def enhance_query(query:str, method:str|None = None) -> str:
         case _:
             raise ValueError(f"Unexpected method: {method}")
     return query
+

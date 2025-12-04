@@ -7,10 +7,14 @@ from .search_util import (
     DEFAULT_SEARCH_LIMIT,
     DEFAULT_HYBRID_ALPHA,
     DOCUMENT_PREVIEW_LENGTH,
-    DEFAULT_HYBRID_RRF_K
+    DEFAULT_HYBRID_RRF_K,
+    SEARCH_LIMIT_MULTIPLIER
 )
-from .query_enhancement import (
-    enhance_query
+from .query_enhancement import enhance_query
+from .reranking import (
+    rerank_individual,
+    rerank_batch,
+    rerank_cross_encoder
 )
 
 class HybridSearch:
@@ -120,13 +124,55 @@ def weighted_search_command(query:str, alpha:float = DEFAULT_HYBRID_ALPHA, limit
         print(f"  BM25: {bm25:.4f}, Semantic: {sem:.4f}")
         print(f"  {doc["description"][:DOCUMENT_PREVIEW_LENGTH]}")
 
-def rrf_search_command(query:str, k:float=DEFAULT_HYBRID_RRF_K, limit:int = DEFAULT_SEARCH_LIMIT, enhance_method:str|None = None):
+
+def rrf_search_command(query:str, k:float=DEFAULT_HYBRID_RRF_K, limit:int = DEFAULT_SEARCH_LIMIT, enhance_method:str|None = None,
+                       rerank_method:str|None = None):
     query = enhance_query(query, enhance_method)
     docs = load_movie_list()
     hs = HybridSearch(docs)
-    res = hs.rrf_search(query, k, limit)
-    for i, (_, doc, bm25_rank, sem_rank, score) in enumerate(res):
-        print(f"{i+1}. {doc["title"]}")
-        print(f"  RRF Score: {score:.4f}")
-        print(f"  BM25 Rank: {bm25_rank}, Semantic: {sem_rank}")
-        print(f"  {doc["description"][:DOCUMENT_PREVIEW_LENGTH]}")
+
+    if rerank_method is None:
+        res = hs.rrf_search(query, k, limit)
+        for i, (_, doc, bm25_rank, sem_rank, score) in enumerate(res):
+            print(f"{i+1}. {doc["title"]}")
+            print(f"  RRF Score: {score:.4f}")
+            print(f"  BM25 Rank: {bm25_rank}, Semantic: {sem_rank}")
+            print(f"  {doc["description"][:DOCUMENT_PREVIEW_LENGTH]}")
+    elif rerank_method == "individual":
+        search_limit = limit * SEARCH_LIMIT_MULTIPLIER
+        print(f"Reranking top {limit} results using individual method...")
+        res = hs.rrf_search(query, k, search_limit)  
+        res_with_score = rerank_individual(query, res, sleep_interval=0)
+        for i, (res, rerank_score) in enumerate(res_with_score[:limit]):
+            (_, doc, bm25_rank, sem_rank, score) = res
+            print(f"{i+1}. {doc["title"]}")
+            print(f"  Rerank Score: {rerank_score:.3f}/10")
+            print(f"  RRF Score: {score:.4f}")
+            print(f"  BM25 Rank: {bm25_rank}, Semantic: {sem_rank}")
+            print(f"  {doc["description"][:DOCUMENT_PREVIEW_LENGTH]}")
+    elif rerank_method == "batch":
+        search_limit = limit * SEARCH_LIMIT_MULTIPLIER
+        print(f"Reranking top {limit} results using batch method...")
+        res = hs.rrf_search(query, k, search_limit)  
+        res_with_rank = rerank_batch(query, res)
+        for i, (res, rerank_rank) in enumerate(res_with_rank[:limit]):
+            (_, doc, bm25_rank, sem_rank, score) = res
+            print(f"{i+1}. {doc["title"]}")
+            print(f"  Rerank Rank: {rerank_rank}")
+            print(f"  RRF Score: {score:.4f}")
+            print(f"  BM25 Rank: {bm25_rank}, Semantic: {sem_rank}")
+            print(f"  {doc["description"][:DOCUMENT_PREVIEW_LENGTH]}")
+    elif rerank_method == "cross_encoder":
+        search_limit = limit * SEARCH_LIMIT_MULTIPLIER
+        print(f"Reranking top {limit} results using cross-encoder method...")
+        res = hs.rrf_search(query, k, search_limit)  
+        res_with_score = rerank_cross_encoder(query, res)
+        for i, (res, rerank_score) in enumerate(res_with_score[:limit]):
+            (_, doc, bm25_rank, sem_rank, score) = res
+            print(f"{i+1}. {doc["title"]}")
+            print(f"  Cross Encoder Score: {rerank_score}")
+            print(f"  RRF Score: {score:.4f}")
+            print(f"  BM25 Rank: {bm25_rank}, Semantic: {sem_rank}")
+            print(f"  {doc["description"][:DOCUMENT_PREVIEW_LENGTH]}")
+
+
