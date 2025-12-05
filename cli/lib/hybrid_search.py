@@ -67,7 +67,7 @@ class HybridSearch:
             result.append((doc_id, self.docmap[doc_id], bm25, sem, h))
         return result
 
-    def rrf_search(self, query:str, k:float, limit:int = 10) -> list[tuple]:
+    def rrf_search(self, query:str, k:float = DEFAULT_HYBRID_RRF_K, limit:int = 10) -> list[tuple]:
         source_limit = 500*limit 
         doc_score_dic = defaultdict(float)
         
